@@ -16,6 +16,14 @@ st.set_page_config(page_title="Geografia Eleitoral 2022", layout="wide")
 
 DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
+PARQUET_PATH = os.path.join(DATA_DIR, "resultado_votacao_2022.parquet")
+PARQUET_URL = "https://github.com/ratitu/mapaeleicoes_2022/releases/download/v1.0/resultado_votacao_2022.parquet"
+
+if not os.path.exists(PARQUET_PATH):
+    import urllib.request
+    with st.spinner(f"Baixando dataset (~130 MB)..."):
+        urllib.request.urlretrieve(PARQUET_URL, PARQUET_PATH)
+
 @st.cache_data
 def load_dicionario():
     df = pd.read_csv(
@@ -30,7 +38,7 @@ def load_dicionario():
 def load_votos():
     cols = ["ANO_ELEICAO", "NR_TURNO", "CD_CARGO", "NR_CANDIDATO", "CD_MUNICIPIO", "QT_VOTOS_NOMINAIS"]
     df = (
-        pq.read_table(os.path.join(DATA_DIR, "resultado_votacao_2022.parquet"), columns=cols)
+        pq.read_table(PARQUET_PATH, columns=cols)
         .to_pandas()
     )
     mask = (
